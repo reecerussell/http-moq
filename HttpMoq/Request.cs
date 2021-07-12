@@ -38,7 +38,7 @@ namespace HttpMoq
         /// </summary>
         /// <param name="data">The value used as the JSON response.</param>
         /// <returns>The current <see cref="Request"/> instance.</returns>
-        public Request Json(object data)
+        public Request ReturnJson(object data)
         {
             Content = JsonConvert.SerializeObject(data);
             ContentType = "application/json";
@@ -51,7 +51,7 @@ namespace HttpMoq
         /// </summary>
         /// <param name="content">The value used as the response body.</param>
         /// <returns>The current <see cref="Request"/> instance.</returns>
-        public Request Text(string content)
+        public Request ReturnText(string content)
         {
             Content = content;
             ContentType = "text/plain";

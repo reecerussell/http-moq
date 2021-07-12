@@ -16,7 +16,7 @@ namespace HttpMoq.Tests.Api
         {
             _api = new MockApi(23496);
             _api.Get("/test")
-                .Json(new { foo = "bar" })
+                .ReturnJson(new { foo = "bar" })
                 .SetStatusCode(HttpStatusCode.BadRequest);
 
             await _api.StartAsync();
