@@ -51,6 +51,14 @@ namespace HttpMoq
             return request;
         }
 
+        public Request Post(string path)
+        {
+            var request = new Request(path, HttpMethod.Post);
+            _requests.Add(request);
+
+            return request;
+        }
+
         public Task StartAsync()
         {
             return _host.StartAsync();
