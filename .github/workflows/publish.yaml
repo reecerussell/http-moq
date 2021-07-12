@@ -35,7 +35,7 @@ jobs:
           dotnet-version: '5.x'
 
       - name: Restore
-        run:  restore HttpMoq/HttpMoq.csproj
+        run: dotnet restore HttpMoq/HttpMoq.csproj
 
       - name: Build
         run: dotnet build -c Release --no-restore HttpMoq/HttpMoq.csproj
