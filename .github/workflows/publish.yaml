@@ -77,5 +77,5 @@ jobs:
         with:
           dotnet-version: '5.x'
 
-      - name: Publish 
+      - name: Publish
         run: dotnet nuget push packages/**.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://www.nuget.org/api/v2/package --skip-duplicate
