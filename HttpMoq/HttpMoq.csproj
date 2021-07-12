@@ -3,6 +3,14 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
     <LangVersion>latestMajor</LangVersion>
+    <Version>0.1.0</Version>
+    <Authors>Reece Russell</Authors>
+    <Description>A super small, super simple library used to mock API responses in integration tests. With support for xUnit and NUnit.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/reecerussell/http-moq</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/reecerussell/http-moq</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>tdd, bdd, tests, xunit, nunit, msbuild</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,6 +18,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
