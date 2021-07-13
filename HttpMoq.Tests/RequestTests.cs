@@ -7,7 +7,7 @@ namespace HttpMoq.Tests
     public class RequestTests
     {
         [Fact]
-        public void Json_GivenObject_SetsContentAndType()
+        public void ReturnJson_GivenObject_SetsContentAndType()
         {
             var request = new Request("/test", HttpMethod.Get)
                 .ReturnJson(new { foo = "bar" });
@@ -17,7 +17,7 @@ namespace HttpMoq.Tests
         }
 
         [Fact]
-        public void Text_GivenContent_SetsTextContent()
+        public void ReturnText_GivenContent_SetsTextContent()
         {
             var request = new Request("/test", HttpMethod.Get)
                 .ReturnText("foo bar");

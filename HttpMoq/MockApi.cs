@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 
 namespace HttpMoq
 {
@@ -24,8 +24,7 @@ namespace HttpMoq
                 {
                     app.Use(async (context, _) =>
                     {
-                        var request = _requests.FirstOrDefault(r => PathHelper.IsMatch(r.Path, context.Request.Path)
-                                                                    && r.Method.ToString() == context.Request.Method);
+                        var request = Find(context.Request.Path.Value, context.Request.Method);
                         if (request == null)
                         {
                             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
@@ -55,8 +54,21 @@ namespace HttpMoq
         {
             var request = new Request(path, HttpMethod.Post);
             _requests.Add(request);
-
+            
             return request;
+        }
+
+        internal Request Find(string path, string method)
+        {
+            return _requests.FirstOrDefault(x => PathHelper.IsMatch(x.Path, path) && x.Method.ToString() == method);
+        }
+
+        public void Remove(Request request)
+        {
+            if (!_requests.Remove(request))
+            {
+                throw new InvalidOperationException("This request does not exist in this MockApi.");
+            }
         }
 
         public Task StartAsync()
