@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HttpMoq
@@ -17,6 +18,9 @@ namespace HttpMoq
         public string Content { get; internal set; }
         public string ContentType { get; internal set; }
         public HttpStatusCode StatusCode { get; internal set; } = HttpStatusCode.OK;
+        
+        private int _count;
+        public int Count => _count;
 
         internal Request(string path, HttpMethod method)
         {
@@ -24,13 +28,18 @@ namespace HttpMoq
             Method = method;
         }
 
-        public async Task Handle(HttpContext context)
+        internal async Task Handle(HttpContext context)
         {
             context.Response.ContentType = ContentType;
             context.Response.StatusCode = (int)StatusCode;
 
             var bytes = Encoding.UTF8.GetBytes(Content);
             await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+        }
+
+        internal void Increment()
+        {
+            Interlocked.Increment(ref _count);
         }
 
         /// <summary>

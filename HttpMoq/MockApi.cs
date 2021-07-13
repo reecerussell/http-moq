@@ -36,6 +36,7 @@ namespace HttpMoq
                             return;
                         }
 
+                        request.Increment();
                         await request.Handle(context);
                     });
                 })
