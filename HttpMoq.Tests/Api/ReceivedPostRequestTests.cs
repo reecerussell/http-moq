@@ -10,12 +10,13 @@ namespace HttpMoq.Tests.Api
     public class ReceivedPostRequestTests : IAsyncLifetime
     {
         private MockApi _api;
+        private Request _request;
         private HttpResponseMessage _response;
 
         public async Task InitializeAsync()
         {
             _api = new MockApi(34944);
-            _api.Post("/test")
+            _request = _api.Post("/test")
                 .ReturnJson(new { foo = "bar" })
                 .SetStatusCode(HttpStatusCode.BadRequest);
 
@@ -29,6 +30,12 @@ namespace HttpMoq.Tests.Api
         {
             await _api.StopAsync();
             _api.Dispose();
+        }
+
+        [Fact]
+        public void TheRequestCountIs1()
+        {
+            _request.Count.Should().Be(1);
         }
 
         [Fact]
