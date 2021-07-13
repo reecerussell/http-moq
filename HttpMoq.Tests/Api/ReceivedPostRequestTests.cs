@@ -7,22 +7,22 @@ using Xunit;
 
 namespace HttpMoq.Tests.Api
 {
-    public class ReceivedGetRequestTests : IAsyncLifetime
+    public class ReceivedPostRequestTests : IAsyncLifetime
     {
         private MockApi _api;
         private HttpResponseMessage _response;
 
         public async Task InitializeAsync()
         {
-            _api = new MockApi(23496);
-            _api.Get("/test")
+            _api = new MockApi(34944);
+            _api.Post("/test")
                 .ReturnJson(new { foo = "bar" })
                 .SetStatusCode(HttpStatusCode.BadRequest);
 
             await _api.StartAsync();
 
             using var client = new HttpClient();
-            _response = await client.GetAsync("http://localhost:23496/test");
+            _response = await client.PostAsync("http://localhost:34944/test", null);
         }
 
         public async Task DisposeAsync()

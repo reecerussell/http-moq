@@ -45,10 +45,15 @@ jobs:
       - name: Unit Test
         run: dotnet test --no-restore -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura HttpMoq.Tests/HttpMoq.Tests.csproj
 
-      - name: Upload Coverage to Codecov
+      - name: Upload Coverage to Codecov (net5.0)
         uses: codecov/codecov-action@v1
         with:
-          file: HttpMoq.Tests/coverage.cobertura.xml
+          file: HttpMoq.Tests/coverage.net5.0.cobertura.xml
+
+      - name: Upload Coverage to Codecov (netcoreapp3.1)
+        uses: codecov/codecov-action@v1
+        with:
+          file: HttpMoq.Tests/coverage.netcoreapp3.1.cobertura.xml
 
       - name: Pack
         run: dotnet pack -c Release --no-restore --no-build -o packages HttpMoq/HttpMoq.csproj
