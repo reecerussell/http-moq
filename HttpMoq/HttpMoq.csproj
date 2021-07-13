@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
     <LangVersion>latestMajor</LangVersion>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>Reece Russell</Authors>
     <Description>A super small, super simple library used to mock API responses in integration tests. With support for xUnit and NUnit.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
