@@ -13,18 +13,26 @@ namespace HttpMoq
     /// </summary>
     public sealed class Request
     {
-        public string Path { get; }
-        public HttpMethod Method { get; }
-        public string Content { get; internal set; }
-        public string ContentType { get; internal set; }
-        public HttpStatusCode StatusCode { get; internal set; } = HttpStatusCode.OK;
+        internal string Path { get; }
+        internal string Query { get; }
+        internal HttpMethod Method { get; }
+        internal string Content { get; set; }
+        internal string ContentType { get; set; }
+        internal HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
         
         private int _count;
         public int Count => _count;
 
         internal Request(string path, HttpMethod method)
         {
-            Path = path;
+            var pathParts = path.Split('?');
+            Path = pathParts[0];
+
+            if (pathParts.Length > 1)
+            {
+                Query = pathParts[1];
+            }
+
             Method = method;
         }
 
