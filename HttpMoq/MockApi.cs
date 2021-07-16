@@ -24,7 +24,7 @@ namespace HttpMoq
                 {
                     app.Use(async (context, _) =>
                     {
-                        var request = Find(context.Request.Path.Value, context.Request.Method);
+                        var request = Find(context.Request.Path.Value, context.Request.QueryString.Value, context.Request.Method);
                         if (request == null)
                         {
                             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
@@ -59,9 +59,10 @@ namespace HttpMoq
             return request;
         }
 
-        internal Request Find(string path, string method)
+        internal Request Find(string path, string queryString, string method)
         {
-            return _requests.FirstOrDefault(x => PathHelper.IsMatch(x.Path, path) && x.Method.ToString() == method);
+            return _requests.FirstOrDefault(x => PathHelper.IsMatch(x.Path, path) && x.Method.ToString() == method &&
+                                                 (x.Query == null || QueryStringHelper.IsMatch(x.Query, queryString)));
         }
 
         public void Remove(Request request)
