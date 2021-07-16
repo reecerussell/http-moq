@@ -12,8 +12,8 @@ namespace HttpMoq.Tests
 
             var result = QueryStringHelper.Parse(queryString);
 
-            result["hello"].Should().Be("world");
-            result["foo"].Should().Be("bar");
+            result["hello"].Should().BeEquivalentTo("world");
+            result["foo"].Should().BeEquivalentTo("bar");
         }
 
         [Fact]
@@ -51,6 +51,15 @@ namespace HttpMoq.Tests
         }
 
         [Fact]
+        public void IsMatch_GivenMultipleValuesMatchingWildcard_ReturnsTrue()
+        {
+            const string pattern = "hello=world&foo=*";
+            const string queryString = "hello=world&foo=1&foo=1";
+
+            QueryStringHelper.IsMatch(pattern, queryString).Should().BeTrue();
+        }
+
+        [Fact]
         public void IsMatch_WhereQueryStringDoesNotContainParam_ReturnsFalse()
         {
             const string pattern = "hello=world&foo=bar";
@@ -66,6 +75,15 @@ namespace HttpMoq.Tests
             const string queryString = "hello=world&foo=foo";
 
             QueryStringHelper.IsMatch(pattern, queryString).Should().BeFalse();
+        }
+
+        [Fact]
+        public void IsMatch_GivenMultipleValuesForSameKey_ReturnsTrue()
+        {
+            const string pattern = "foo=1&foo=2";
+            const string queryString = "foo=2&foo=1";
+
+            QueryStringHelper.IsMatch(pattern, queryString).Should().BeTrue();
         }
     }
 }
