@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Extensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -14,6 +16,7 @@ namespace HttpMoq
     {
         private readonly IWebHost _host;
         private readonly List<Request> _requests = new();
+        private Queue<string> _output = new();
 
         public MockApi(int port)
         {
@@ -24,13 +27,19 @@ namespace HttpMoq
                 {
                     app.Use(async (context, _) =>
                     {
+                        _output.Enqueue("Incoming request to: " + context.Request.GetDisplayUrl());
+
                         var request = Find(context.Request.Path.Value, context.Request.QueryString.Value, context.Request.Method);
                         if (request == null)
                         {
                             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                             context.Response.ContentType = "text/plain";
 
-                            var bytes = Encoding.UTF8.GetBytes("No mock could be found to match this request.");
+                            const string error = "No mock could be found to match this request.";
+
+                            Print(error);
+
+                            var bytes = Encoding.UTF8.GetBytes(error);
                             await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
 
                             return;
@@ -89,6 +98,28 @@ namespace HttpMoq
         public Task StopAsync()
         {
             return _host.StopAsync();
+        }
+
+        public void PrintOutput(Action<string> writer)
+        {
+            lock (_output)
+            {
+                var output = _output;
+                _output = new Queue<string>();
+
+                foreach (var o in output)
+                {
+                    writer.Invoke(o);
+                }
+            }
+        }
+
+        private void Print(string output)
+        {
+            lock (_output)
+            {
+                _output.Enqueue(output);
+            }
         }
 
         public void Dispose()

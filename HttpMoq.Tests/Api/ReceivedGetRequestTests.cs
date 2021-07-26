@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Net.Http;
@@ -36,6 +37,17 @@ namespace HttpMoq.Tests.Api
         public void TheRequestCountIs1()
         {
             _request.Count.Should().Be(1);
+        }
+
+        [Fact]
+        public void TheOutputIsNotEmpty()
+        {
+            var count = 0;
+            Action<string> print = _ => { count++; };
+            
+            _api.PrintOutput(print);
+
+            count.Should().Be(1);
         }
 
         [Fact]
