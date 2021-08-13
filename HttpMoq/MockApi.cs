@@ -76,6 +76,14 @@ namespace HttpMoq
             return request;
         }
 
+        public Request Delete(string path)
+        {
+            var request = new Request(path, HttpMethod.Delete);
+            _requests.Add(request);
+
+            return request;
+        }
+
         internal Request Find(string path, string queryString, string method)
         {
             return _requests.FirstOrDefault(x => PathHelper.IsMatch(x.Path, path) && x.Method.ToString() == method &&
