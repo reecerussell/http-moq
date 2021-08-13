@@ -41,8 +41,11 @@ namespace HttpMoq
             context.Response.ContentType = ContentType;
             context.Response.StatusCode = (int)StatusCode;
 
-            var bytes = Encoding.UTF8.GetBytes(Content);
-            await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+            if (Content != null)
+            {
+                var bytes = Encoding.UTF8.GetBytes(Content);
+                await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+            }
         }
 
         internal void Increment()
