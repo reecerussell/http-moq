@@ -23,6 +23,11 @@ namespace HttpMoq
 
             foreach (var set in sets)
             {
+                if (string.IsNullOrEmpty(set))
+                {
+                    continue;
+                }
+
                 var parts = set.Split('=');
                 var name = parts[0];
                 var value = parts[1];
