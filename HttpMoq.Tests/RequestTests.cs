@@ -2,6 +2,7 @@
 using FluentAssertions;
 using System.Net.Http;
 using System.Threading.Tasks;
+using HttpMoq.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -51,6 +52,29 @@ namespace HttpMoq.Tests
             Parallel.Invoke(increment, increment, increment);
 
             request.Count.Should().Be(count + 3);
+        }
+
+        [Theory]
+        [InlineData("hello")]
+        [InlineData("not a method")]
+        public void Constructor_GivenInvalidMethod_Throws(string method)
+        {
+            var ex = Assert.Throws<InvalidMethodException>(() => new Request("/", method));
+            ex.Method.Should().Be(method);
+        }
+
+        [Fact]
+        public void Constructor_GivenNullMethod_Throws()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() => new Request("/", null));
+            ex.ParamName.Should().Be("method");
+        }
+
+        [Fact]
+        public void Constructor_GivenNullPath_Throws()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() => new Request(null, HttpMethods.Get));
+            ex.ParamName.Should().Be("path");
         }
     }
 }
