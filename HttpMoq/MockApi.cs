@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace HttpMoq
 {
@@ -88,6 +86,14 @@ namespace HttpMoq
         public Request Delete(string path)
         {
             var request = new Request(path, HttpMethods.Delete);
+            _requests.Add(request);
+
+            return request;
+        }
+
+        public Request Expect(string method, string path)
+        {
+            var request = new Request(path, method);
             _requests.Add(request);
 
             return request;
