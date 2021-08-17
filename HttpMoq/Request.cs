@@ -15,7 +15,7 @@ namespace HttpMoq
     {
         internal string Path { get; }
         internal string Query { get; }
-        internal HttpMethod Method { get; }
+        internal string Method { get; }
         internal string Content { get; set; }
         internal string ContentType { get; set; }
         internal HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
@@ -23,7 +23,7 @@ namespace HttpMoq
         private int _count;
         public int Count => _count;
 
-        internal Request(string path, HttpMethod method)
+        internal Request(string path, string method)
         {
             var pathParts = path.Split('?');
             Path = pathParts[0];
