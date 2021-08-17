@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,7 +53,7 @@ namespace HttpMoq
 
         public Request Get(string path)
         {
-            var request = new Request(path, HttpMethod.Get);
+            var request = new Request(path, HttpMethods.Get);
             _requests.Add(request);
 
             return request;
@@ -62,7 +61,7 @@ namespace HttpMoq
 
         public Request Post(string path)
         {
-            var request = new Request(path, HttpMethod.Post);
+            var request = new Request(path, HttpMethods.Post);
             _requests.Add(request);
             
             return request;
@@ -70,7 +69,15 @@ namespace HttpMoq
 
         public Request Put(string path)
         {
-            var request = new Request(path, HttpMethod.Put);
+            var request = new Request(path, HttpMethods.Put);
+            _requests.Add(request);
+
+            return request;
+        }
+
+        public Request Patch(string path)
+        {
+            var request = new Request(path, HttpMethods.Patch);
             _requests.Add(request);
 
             return request;
@@ -78,7 +85,15 @@ namespace HttpMoq
 
         public Request Delete(string path)
         {
-            var request = new Request(path, HttpMethod.Delete);
+            var request = new Request(path, HttpMethods.Delete);
+            _requests.Add(request);
+
+            return request;
+        }
+
+        public Request Expect(string method, string path)
+        {
+            var request = new Request(path, method);
             _requests.Add(request);
 
             return request;
@@ -86,7 +101,7 @@ namespace HttpMoq
 
         internal Request Find(string path, string queryString, string method)
         {
-            return _requests.FirstOrDefault(x => PathHelper.IsMatch(x.Path, path) && x.Method.ToString() == method &&
+            return _requests.FirstOrDefault(x => PathHelper.IsMatch(x.Path, path) && x.Method == method &&
                                                  (x.Query == null || QueryStringHelper.IsMatch(x.Query, queryString)));
         }
 

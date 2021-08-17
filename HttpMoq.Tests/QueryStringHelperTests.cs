@@ -5,11 +5,12 @@ namespace HttpMoq.Tests
 {
     public class QueryStringHelperTests
     {
-        [Fact]
-        public void Parse_GivenValidQueryString_ReturnsSeparatedParams()
+        [Theory]
+        [InlineData("?&hello=world&foo=bar")]
+        [InlineData("?hello=world&&foo=bar")]
+        [InlineData("?hello=world&&foo=bar&")]
+        public void Parse_GivenValidQueryString_ReturnsSeparatedParams(string queryString)
         {
-            const string queryString = "?hello=world&foo=bar";
-
             var result = QueryStringHelper.Parse(queryString);
 
             result["hello"].Should().BeEquivalentTo("world");

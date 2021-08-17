@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using System;
+using System.Net;
 using System.Net.Http;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace HttpMoq.Tests
@@ -22,7 +24,7 @@ namespace HttpMoq.Tests
         public void Remove_WhereRequestDoesNotExist_ThrowsInvalidOperationException()
         {
             var api = new MockApi(3454);
-            var request = new Request("/test", HttpMethod.Get);
+            var request = new Request("/test", HttpMethods.Get);
 
             Assert.Throws<InvalidOperationException>(() => api.Remove(request));
         }
@@ -43,6 +45,19 @@ namespace HttpMoq.Tests
             var request = api.Get("/test");
 
             api.Find("/test", null, "GET").Should().Be(request);
+        }
+
+        [Fact]
+        public void Expect_GivenValidMethodAndString_AddsRequestToApi()
+        {
+            const string method = "GET";
+            const string path = "/hello";
+
+            var api = new MockApi(32432);
+            var request = api.Expect(method, path)
+                .SetStatusCode(HttpStatusCode.Created);
+
+            api.Find(path, null, method).Should().Be(request);
         }
     }
 }

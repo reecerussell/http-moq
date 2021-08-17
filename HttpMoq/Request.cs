@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using HttpMoq.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using System;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace HttpMoq
     {
         internal string Path { get; }
         internal string Query { get; }
-        internal HttpMethod Method { get; }
+        internal string Method { get; }
         internal string Content { get; set; }
         internal string ContentType { get; set; }
         internal HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
@@ -23,8 +24,11 @@ namespace HttpMoq
         private int _count;
         public int Count => _count;
 
-        internal Request(string path, HttpMethod method)
+        internal Request(string path, string method)
         {
+            ThrowIfInvalidPath(path);
+            ThrowIfInvalidMethod(method);
+
             var pathParts = path.Split('?');
             Path = pathParts[0];
 
@@ -89,6 +93,35 @@ namespace HttpMoq
             StatusCode = statusCode;
 
             return this;
+        }
+
+        private static void ThrowIfInvalidPath(string path)
+        {
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+        }
+
+        private static void ThrowIfInvalidMethod(string method)
+        {
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
+            if (!HttpMethods.IsConnect(method) &&
+                !HttpMethods.IsDelete(method) &&
+                !HttpMethods.IsGet(method) &&
+                !HttpMethods.IsHead(method) &&
+                !HttpMethods.IsOptions(method) &&
+                !HttpMethods.IsPatch(method) &&
+                !HttpMethods.IsPost(method) &&
+                !HttpMethods.IsPut(method) &&
+                !HttpMethods.IsTrace(method))
+            {
+                throw new InvalidMethodException(method);
+            }
         }
     }
 }
