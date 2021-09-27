@@ -20,7 +20,8 @@ namespace HttpMoq
         internal string Content { get; set; }
         internal string ContentType { get; set; }
         internal HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
-        
+        internal uint? Limit { get; set; }
+
         private int _count;
         public int Count => _count;
 
@@ -91,6 +92,18 @@ namespace HttpMoq
         public Request SetStatusCode(HttpStatusCode statusCode)
         {
             StatusCode = statusCode;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the limit on the number of times the request can be used.
+        /// </summary>
+        /// <param name="limit">A positive integer value for the limit.</param>
+        /// <returns>The current <see cref="Request"/> instance.</returns>
+        public Request SetLimit(uint limit)
+        {
+            Limit = limit;
 
             return this;
         }
