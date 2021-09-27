@@ -101,7 +101,9 @@ namespace HttpMoq
 
         internal Request Find(string path, string queryString, string method)
         {
-            return _requests.FirstOrDefault(x => PathHelper.IsMatch(x.Path, path) && x.Method == method &&
+            return _requests.FirstOrDefault(x => PathHelper.IsMatch(x.Path, path) &&
+                                                 x.Method == method &&
+                                                 (x.Limit == null || x.Count < x.Limit) &&
                                                  (x.Query == null || QueryStringHelper.IsMatch(x.Query, queryString)));
         }
 
