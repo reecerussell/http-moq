@@ -16,15 +16,14 @@ namespace HttpMoq.Tests.Api
 
         public async Task InitializeAsync()
         {
-            _api = new MockApi(23496);
+            _api = new MockApi();
             _request = _api.Get("/test?foo=bar")
                 .ReturnJson(new { foo = "bar" })
                 .SetStatusCode(HttpStatusCode.BadRequest);
 
             await _api.StartAsync();
-
-            using var client = new HttpClient();
-            _response = await client.GetAsync("http://localhost:23496/test?foo=bar");
+            
+            _response = await _api.HttpClient.GetAsync("/test?foo=bar");
         }
 
         public async Task DisposeAsync()

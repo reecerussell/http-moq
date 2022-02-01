@@ -19,9 +19,8 @@ namespace HttpMoq.Tests.Api
                 .ReturnJson(new { foo = "bar" });
 
             await _api.StartAsync();
-
-            using var client = new HttpClient();
-            _response = await client.PutAsync("http://localhost:5467/test", null);
+            
+            _response = await _api.HttpClient.PutAsync("/test", null);
         }
 
         public async Task DisposeAsync()
