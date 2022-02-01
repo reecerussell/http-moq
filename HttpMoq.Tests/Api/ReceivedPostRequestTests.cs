@@ -23,7 +23,7 @@ namespace HttpMoq.Tests.Api
             await _api.StartAsync();
 
             using var client = new HttpClient();
-            _response = await client.PostAsync("http://localhost:34944/test", null);
+            _response = await client.PostAsync($"{_api.Url}/test", null);
         }
 
         public async Task DisposeAsync()

@@ -14,14 +14,13 @@ namespace HttpMoq.Tests.Api
 
         public async Task InitializeAsync()
         {
-            _api = new MockApi(5487);
+            _api = new MockApi();
             _request = _api.Patch("/test")
                 .ReturnJson(new { foo = "bar" });
 
             await _api.StartAsync();
-
-            using var client = new HttpClient();
-            _response = await client.PatchAsync("http://localhost:5487/test", null);
+            
+            _response = await _api.HttpClient.PatchAsync("test", null);
         }
 
         public async Task DisposeAsync()

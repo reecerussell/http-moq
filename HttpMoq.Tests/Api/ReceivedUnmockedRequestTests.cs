@@ -15,9 +15,8 @@ namespace HttpMoq.Tests.Api
             _api = new MockApi(46345);
 
             await _api.StartAsync();
-
-            using var client = new HttpClient();
-            _response = await client.GetAsync("http://localhost:46345/test");
+            
+            _response = await _api.HttpClient.GetAsync("/test");
         }
 
         public async Task DisposeAsync()

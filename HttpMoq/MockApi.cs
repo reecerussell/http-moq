@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,8 +19,22 @@ namespace HttpMoq
         private readonly List<Request> _requests = new();
         private Queue<string> _output = new();
 
+        public string Url { get; }
+        public HttpClient HttpClient { get; }
+
+        public MockApi() : this(FindFreePort())
+        {
+        }
+
         public MockApi(int port)
         {
+            Url = $"http://localhost:{port}";
+            HttpClient = new HttpClient
+            {
+                BaseAddress = new Uri(Url),
+                Timeout = TimeSpan.FromSeconds(30)
+            };
+
             _host = new WebHostBuilder()
                 .UseKestrel()
                 .UseUrls($"http://+:{port}")
@@ -145,6 +161,26 @@ namespace HttpMoq
             {
                 _output.Enqueue(output);
             }
+        }
+
+        private static int FindFreePort()
+        {
+            int port;
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            
+            try
+            {
+                var local = new IPEndPoint(IPAddress.Any, 0);
+                socket.Bind(local);
+                local = (IPEndPoint)socket.LocalEndPoint;
+                port = local.Port;
+            }
+            finally
+            {
+                socket.Close();
+            }
+
+            return port;
         }
 
         public void Dispose()

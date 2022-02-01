@@ -23,10 +23,9 @@ namespace HttpMoq.Tests.Api
                 .SetLimit(1);
 
             await _api.StartAsync();
-
-            using var client = new HttpClient();
-            _response1 = await client.GetAsync("http://localhost:23437/test");
-            _response2 = await client.GetAsync("http://localhost:23437/test");
+            
+            _response1 = await _api.HttpClient.GetAsync("/test");
+            _response2 = await _api.HttpClient.GetAsync("/test");
         }
 
         public async Task DisposeAsync()
