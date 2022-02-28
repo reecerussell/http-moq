@@ -7,52 +7,97 @@ using Xunit;
 
 namespace HttpMoq.Tests.Api
 {
-    public class ReceivedPostRequestTests : IAsyncLifetime
+    public class ReceivedPostRequestTests
     {
-        private MockApi _api;
-        private Request _request;
-        private HttpResponseMessage _response;
-
-        public async Task InitializeAsync()
+        public class WhereBodyMatches : IAsyncLifetime
         {
-            _api = new MockApi(34944);
-            _request = _api.Post("/test")
-                .ReturnJson(new { foo = "bar" })
-                .SetStatusCode(HttpStatusCode.BadRequest);
+            private MockApi _api;
+            private Request _request;
+            private HttpResponseMessage _response;
 
-            await _api.StartAsync();
+            public async Task InitializeAsync()
+            {
+                const string testBody = "{\"message\":\"hi\"}";
 
-            using var client = new HttpClient();
-            _response = await client.PostAsync($"{_api.Url}/test", null);
+                _api = new MockApi(34946);
+                _request = _api.Post("/test")
+                    .EnsureBody(b => b.Value<string>("message").Should().Be("hi"))
+                    .ReturnJson(new { foo = "bar" })
+                    .SetStatusCode(HttpStatusCode.BadRequest);
+
+                await _api.StartAsync();
+
+                using var client = new HttpClient();
+                _response = await client.PostAsync($"{_api.Url}/test", new StringContent(testBody));
+            }
+
+            public async Task DisposeAsync()
+            {
+                await _api.StopAsync();
+                _api.Dispose();
+            }
+
+            [Fact]
+            public void TheRequestCountIs1()
+            {
+                _request.Count.Should().Be(1);
+            }
+
+            [Fact]
+            public void TheResponseStatusCodeIsCorrect()
+            {
+                _response.StatusCode.Should().Be(400);
+            }
+
+            [Fact]
+            public async Task TheResponseContentIsCorrect()
+            {
+                _response.Content.Headers.ContentType?.MediaType.Should().Be("application/json");
+
+                var json = await _response.Content.ReadAsStringAsync();
+                var data = JObject.Parse(json);
+
+                data.Value<string>("foo").Should().Be("bar");
+            }
         }
 
-        public async Task DisposeAsync()
+        public class WhereBodyDoesNotMatch : IAsyncLifetime
         {
-            await _api.StopAsync();
-            _api.Dispose();
-        }
+            private MockApi _api;
+            private Request _request;
+            private HttpResponseMessage _response;
 
-        [Fact]
-        public void TheRequestCountIs1()
-        {
-            _request.Count.Should().Be(1);
-        }
+            public async Task InitializeAsync()
+            {
+                _api = new MockApi(34944);
+                _request = _api.Post("/test")
+                    .EnsureBody(b => b.Should().Be("bar"))
+                    .ReturnJson(new { foo = "bar" })
+                    .SetStatusCode(HttpStatusCode.BadRequest);
 
-        [Fact]
-        public void TheResponseStatusCodeIsCorrect()
-        {
-            _response.StatusCode.Should().Be(400);
-        }
+                await _api.StartAsync();
 
-        [Fact]
-        public async Task TheResponseContentIsCorrect()
-        {
-            _response.Content.Headers.ContentType?.MediaType.Should().Be("application/json");
+                using var client = new HttpClient();
+                _response = await client.PostAsync($"{_api.Url}/test", null);
+            }
 
-            var json = await _response.Content.ReadAsStringAsync();
-            var data = JObject.Parse(json);
+            public async Task DisposeAsync()
+            {
+                await _api.StopAsync();
+                _api.Dispose();
+            }
 
-            data.Value<string>("foo").Should().Be("bar");
+            [Fact]
+            public void TheRequestCountIs1()
+            {
+                _request.Count.Should().Be(0);
+            }
+
+            [Fact]
+            public void TheResponseStatusCodeIsCorrect()
+            {
+                _response.StatusCode.Should().Be(404);
+            }
         }
     }
 }

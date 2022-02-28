@@ -28,7 +28,7 @@ namespace HttpMoq.Tests.Api
         [Fact]
         public void TheResponseStatusCodeIsCorrect()
         {
-            _response.StatusCode.Should().Be(500);
+            _response.StatusCode.Should().Be(404);
         }
 
         [Fact]

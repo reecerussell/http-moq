@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HttpMoq.Exceptions;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace HttpMoq.Tests
@@ -75,6 +77,107 @@ namespace HttpMoq.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() => new Request(null, HttpMethods.Get));
             ex.ParamName.Should().Be("path");
+        }
+
+        [Fact]
+        public void EnsureBody_GivenStringActionThatDoesNotThrow_SetsAndReturnsTrue()
+        {
+            var actionHit = false;
+
+            void BodyValidator(string _)
+            {
+                actionHit = true;
+            }
+
+            var request = new Request("/", "GET")
+                .EnsureBody(BodyValidator);
+
+            var result = request.BodyValidator("foo");
+            result.Should().BeTrue();
+            actionHit.Should().BeTrue();
+        }
+
+        [Fact]
+        public void EnsureBody_GivenStringActionThatThrows_SetsAndReturnsFalse()
+        {
+            var actionHit = false;
+
+            void BodyValidator(string _)
+            {
+                actionHit = true;
+
+                throw new ArgumentException("invalid body");
+            }
+
+            var request = new Request("/", "GET")
+                .EnsureBody(BodyValidator);
+
+            var result = request.BodyValidator("foo");
+            result.Should().BeFalse();
+            actionHit.Should().BeTrue();
+        }
+
+        [Fact]
+        public void EnsureBody_GivenJObjectActionThatDoesNotThrow_SetsAndReturnsTrue()
+        {
+            const string testBody = "{\"message\":\"hello\"}";
+
+            var actionHit = false;
+
+            void BodyValidator(JObject data)
+            {
+                actionHit = true;
+                data.Value<string>("message").Should().Be("hello");
+            }
+
+            var request = new Request("/", "GET")
+                .EnsureBody(BodyValidator);
+
+            var result = request.BodyValidator(testBody);
+            result.Should().BeTrue();
+            actionHit.Should().BeTrue();
+        }
+
+        [Fact]
+        public void EnsureBody_GivenJObjectActionThatThrows_SetsAndReturnsFalse()
+        {
+            const string testBody = "{\"message\":\"hello\"}";
+
+            var actionHit = false;
+
+            void BodyValidator(JObject data)
+            {
+                actionHit = true;
+                data.Value<string>("message").Should().Be("goodbye");
+            }
+
+            var request = new Request("/", "GET")
+                .EnsureBody(BodyValidator);
+
+            var result = request.BodyValidator(testBody);
+            result.Should().BeFalse();
+            actionHit.Should().BeTrue();
+        }
+
+        [Fact]
+        public void EnsureBody_GivenTActionThatDoesNotThrow_SetsAndReturnsTrue()
+        {
+            const string testBody = "{\"message\":\"hello\"}";
+
+            var actionHit = false;
+
+            void BodyValidator(Dictionary<string, string> data)
+            {
+                actionHit = true;
+                data["message"].Should().Be("hello");
+            }
+
+            var request = new Request("/", "GET")
+                .EnsureBody<Dictionary<string, string>>(BodyValidator);
+
+            var result = request.BodyValidator(testBody);
+            result.Should().BeTrue();
+            actionHit.Should().BeTrue();
         }
     }
 }

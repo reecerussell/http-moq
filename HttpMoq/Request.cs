@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace HttpMoq
 {
@@ -21,6 +22,7 @@ namespace HttpMoq
         internal string ContentType { get; set; }
         internal HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
         internal uint? Limit { get; set; }
+        internal Func<string, bool> BodyValidator { get; private set; }
 
         private int _count;
         public int Count => _count;
@@ -104,6 +106,132 @@ namespace HttpMoq
         public Request SetLimit(uint limit)
         {
             Limit = limit;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Used to set the body validator logic which is used when matching requests.
+        /// This method allows a Request to be configured so that only if a requests body
+        /// is valid, the Request is used.
+        /// </summary>
+        /// <param name="body">
+        /// An action used to validate a request's body. The action is provide the body's content
+        /// as a <see cref="string"/>, then the action should throw an exception if it's not valid.
+        /// </param>
+        /// <example>
+        /// using FluentAssertions;
+        /// 
+        /// var request = new Request("/", "POST)
+        ///     .EnsureBody(data =>
+        ///     {
+        ///         data.Should().Be("Hello World");
+        ///     });
+        /// </example>
+        public Request EnsureBody(Action<string> body)
+            => EnsureBody(s =>
+            {
+                try
+                {
+                    body?.Invoke(s);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+
+        /// <summary>
+        /// Used to set the body validator logic which is used when matching requests.
+        /// This method allows a Request to be configured so that only if a requests body
+        /// is valid, the Request is used.
+        ///
+        /// A request's JSON body is parsed to a JObject which can be used to read the body.
+        /// </summary>
+        /// <param name="body">
+        /// An action used to validate a request's body. The action is provide the body's content
+        /// as a <see cref="JObject"/>, then the action should throw an exception if it's not valid.
+        /// </param>
+        /// <example>
+        /// using FluentAssertions;
+        /// 
+        /// var request = new Request("/", "POST)
+        ///     .EnsureBody(data =>
+        ///     {
+        ///         data.Value&lt;string&gt;("message").Should().Be("Hello World");
+        ///     });
+        /// </example>
+        public Request EnsureBody(Action<JObject> body)
+            => EnsureBody(content =>
+            {
+                try
+                {
+                    var data = JObject.Parse(content);
+                    body?.Invoke(data);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+
+        /// <summary>
+        /// Used to set the body validator logic which is used when matching requests.
+        /// This method allows a Request to be configured so that only if a requests body
+        /// is valid, the Request is used.
+        ///
+        /// By specifying <typeparamref name="T"/>, a request's JSON body will be deserialized
+        /// to the specified type, then the <paramref name="body"/> action can be used to validate it.
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize a request's JSON body to.</typeparam>
+        /// <param name="body">An action used to ensure the body is valid - this should throw if the body is not valid.</param>
+        /// <example>
+        /// using FluentAssertions;
+        ///
+        /// public class MyObject
+        /// {
+        ///     public string Message { get; set; }
+        /// }
+        /// 
+        /// var request = new Request("/", "POST)
+        ///     .EnsureBody&lt;MyObject&gt;(data =>
+        ///     {
+        ///         data.Message.Should().Be("Hello World");
+        ///     });
+        /// </example>
+        public Request EnsureBody<T>(Action<T> body)
+            => EnsureBody(content =>
+            {
+                try
+                {
+                    var data = JsonConvert.DeserializeObject<T>(content);
+                    body?.Invoke(data);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+
+        /// <summary>
+        /// Used to set the body validator logic which is used when matching requests.
+        /// This method allows a Request to be configured so that only if a requests body
+        /// is valid, the Request is used.
+        /// </summary>
+        /// <param name="body">
+        /// A function used to describe if a request's body is valid or not. Provided
+        /// string data, a boolean should be returned if the body is valid, otherwise false.
+        /// </param>
+        /// <example>
+        /// var request = new Request("/", "POST)
+        ///     .EnsureBody(data => data == "Hello World");
+        /// </example>
+        public Request EnsureBody(Func<string, bool> body)
+        {
+            BodyValidator = body;
 
             return this;
         }
