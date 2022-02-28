@@ -179,5 +179,26 @@ namespace HttpMoq.Tests
             result.Should().BeTrue();
             actionHit.Should().BeTrue();
         }
+
+        [Fact]
+        public void EnsureBody_GivenTActionThatThrows_SetsAndReturnsFalse()
+        {
+            const string testBody = "{\"message\":\"hello\"}";
+
+            var actionHit = false;
+
+            void BodyValidator(Dictionary<string, string> data)
+            {
+                actionHit = true;
+                data["message"].Should().Be("goodbye");
+            }
+
+            var request = new Request("/", "GET")
+                .EnsureBody<Dictionary<string, string>>(BodyValidator);
+
+            var result = request.BodyValidator(testBody);
+            result.Should().BeFalse();
+            actionHit.Should().BeTrue();
+        }
     }
 }
