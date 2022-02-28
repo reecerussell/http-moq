@@ -44,7 +44,7 @@ namespace HttpMoq.Tests.Api
         public void TheResponseStatusCodesAreCorrect()
         {
             _response1.StatusCode.Should().Be(200);
-            _response2.StatusCode.Should().Be(500);
+            _response2.StatusCode.Should().Be(404);
         }
 
         [Fact]

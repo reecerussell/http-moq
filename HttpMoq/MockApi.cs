@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -38,32 +39,8 @@ namespace HttpMoq
             _host = new WebHostBuilder()
                 .UseKestrel()
                 .UseUrls($"http://+:{port}")
-                .Configure(app =>
-                {
-                    app.Use(async (context, _) =>
-                    {
-                        _output.Enqueue("Incoming request to: " + context.Request.GetDisplayUrl());
-
-                        var request = Find(context.Request.Path.Value, context.Request.QueryString.Value, context.Request.Method);
-                        if (request == null)
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                            context.Response.ContentType = "text/plain";
-
-                            const string error = "No mock could be found to match this request.";
-
-                            Print(error);
-
-                            var bytes = Encoding.UTF8.GetBytes(error);
-                            await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-
-                            return;
-                        }
-
-                        request.Increment();
-                        await request.Handle(context);
-                    });
-                })
+                .Configure(app => 
+                    app.Use(async (ctx, _) => await HandleRequests(ctx)))
                 .Build();
         }
 
@@ -181,6 +158,43 @@ namespace HttpMoq
             }
 
             return port;
+        }
+
+        private async Task HandleRequests(HttpContext context)
+        {
+            _output.Enqueue("Incoming request to: " + context.Request.GetDisplayUrl());
+
+            var request = Find(context.Request.Path.Value, context.Request.QueryString.Value, context.Request.Method);
+            if (request == null)
+            {
+                const string error = "No mock could be found to match this request.";
+                await WriteError(error);
+                return;
+            }
+
+            var ms = new MemoryStream();
+            await context.Request.Body.CopyToAsync(ms);
+            var content = Encoding.UTF8.GetString(ms.ToArray());
+            if (request.BodyValidator != null && !request.BodyValidator(content))
+            {
+                const string error = "The request body does not match the mocked request.";
+                await WriteError(error);
+                return;
+            }
+
+            request.Increment();
+            await request.Handle(context);
+
+            async Task WriteError(string error)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Response.ContentType = "text/plain";
+
+                Print(error);
+
+                var bytes = Encoding.UTF8.GetBytes(error);
+                await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+            }
         }
 
         public void Dispose()
