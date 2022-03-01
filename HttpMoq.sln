@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31321.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMoq", "HttpMoq\HttpMoq.csproj", "{9567B408-1A11-4D06-8ED8-731C0BA4577E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpMoq", "HttpMoq\HttpMoq.csproj", "{9567B408-1A11-4D06-8ED8-731C0BA4577E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMoq.Tests", "HttpMoq.Tests\HttpMoq.Tests.csproj", "{A3310C7A-6BF0-4253-862D-10DF28C70974}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpMoq.Tests", "HttpMoq.Tests\HttpMoq.Tests.csproj", "{A3310C7A-6BF0-4253-862D-10DF28C70974}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cli", "Cli", "{27BC64F4-BC0E-4411-A97C-EF4E9C4BBA07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMoq.Cli", "HttpMoq.Cli\HttpMoq.Cli.csproj", "{4478564A-8B67-47D4-A809-4934162AB66A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +25,16 @@ Global
 		{A3310C7A-6BF0-4253-862D-10DF28C70974}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3310C7A-6BF0-4253-862D-10DF28C70974}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3310C7A-6BF0-4253-862D-10DF28C70974}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4478564A-8B67-47D4-A809-4934162AB66A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4478564A-8B67-47D4-A809-4934162AB66A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4478564A-8B67-47D4-A809-4934162AB66A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4478564A-8B67-47D4-A809-4934162AB66A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4478564A-8B67-47D4-A809-4934162AB66A} = {27BC64F4-BC0E-4411-A97C-EF4E9C4BBA07}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {826507C8-EC99-4D74-8750-A75EDDE45DFE}

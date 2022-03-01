@@ -39,8 +39,28 @@ namespace HttpMoq
             _host = new WebHostBuilder()
                 .UseKestrel()
                 .UseUrls($"http://+:{port}")
-                .Configure(app => 
-                    app.Use(async (ctx, _) => await HandleRequests(ctx)))
+                .Configure(app =>
+                {
+                    app.Run(async (ctx) =>
+                    {
+                        try
+                        {
+                            var bytes = Encoding.UTF8.GetBytes("{\"message\":\"Hello\"}");
+                            
+                            //response.StatusCode = 200;
+
+                            ctx.Response.ContentType = "application/json";
+                            var ms = new MemoryStream(bytes);
+                            await ms.CopyToAsync(ctx.Response.Body);
+                        }
+                        catch
+                        {
+                            Print("AHHHH");
+                            throw;
+                        }
+                    });
+                    //app.Use(async (ctx, next) => await HandleRequests(ctx, next));
+                })
                 .Build();
         }
 
@@ -160,7 +180,7 @@ namespace HttpMoq
             return port;
         }
 
-        private async Task HandleRequests(HttpContext context)
+        private async Task HandleRequests(HttpContext context, Func<Task> next)
         {
             _output.Enqueue("Incoming request to: " + context.Request.GetDisplayUrl());
 
@@ -168,7 +188,8 @@ namespace HttpMoq
             if (request == null)
             {
                 const string error = "No mock could be found to match this request.";
-                await WriteError(error);
+                WriteError(error);
+                await next.Invoke();
                 return;
             }
 
@@ -178,22 +199,25 @@ namespace HttpMoq
             if (request.BodyValidator != null && !request.BodyValidator(content))
             {
                 const string error = "The request body does not match the mocked request.";
-                await WriteError(error);
+                WriteError(error);
+                await next.Invoke();
                 return;
             }
 
             request.Increment();
+            context.Response.Clear();
             await request.Handle(context);
 
-            async Task WriteError(string error)
+            void WriteError(string error)
             {
+                context.Response.Clear();
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 context.Response.ContentType = "text/plain";
 
                 Print(error);
 
                 var bytes = Encoding.UTF8.GetBytes(error);
-                await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                context.Response.Body.WriteAsync(bytes, 0, bytes.Length).Wait();
             }
         }
 

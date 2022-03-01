@@ -43,16 +43,18 @@ namespace HttpMoq
             Method = method;
         }
 
-        internal async Task Handle(HttpContext context)
+        internal Task Handle(HttpContext context)
         {
-            context.Response.ContentType = ContentType;
             context.Response.StatusCode = (int)StatusCode;
 
             if (Content != null)
             {
-                var bytes = Encoding.UTF8.GetBytes(Content);
-                await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                context.Response.ContentType = ContentType;
+
+                return context.Response.WriteAsync(Content);
             }
+
+            return Task.CompletedTask;
         }
 
         internal void Increment()

@@ -1,0 +1,14 @@
+﻿{
+  "port": "3456",
+  "requests": [
+    {
+      "path": "/hi",
+      "method": "GET",
+      "limit":  10, 
+      "response": {
+        "statusCode": 200,
+        "text": "Hello" 
+      } 
+    }
+  ] 
+}

@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "HttpMoq.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "--config ../../../config.example.json --verbose true",
+      "hotReloadEnabled": false
+    }
+  }
+}
