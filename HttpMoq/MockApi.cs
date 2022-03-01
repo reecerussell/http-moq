@@ -164,6 +164,8 @@ namespace HttpMoq
         {
             _output.Enqueue("Incoming request to: " + context.Request.GetDisplayUrl());
 
+            context.Response.Headers.Add("Date", DateTimeOffset.UtcNow.ToString());
+
             var request = Find(context.Request.Path.Value, context.Request.QueryString.Value, context.Request.Method);
             if (request == null)
             {
