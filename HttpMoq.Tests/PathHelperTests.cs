@@ -25,5 +25,16 @@ namespace HttpMoq.Tests
         {
             PathHelper.IsMatch(pattern, path).Should().BeTrue();
         }
+        
+        [Theory]
+        [InlineData("/", "/hello")]
+        [InlineData("/hello", "/hello/world")]
+        [InlineData("/hello/*", "/hello")]
+        [InlineData("/hello/world", "/hello/world/test")]
+        [InlineData("/hello/*/world", "/hello/*/world/test")]
+        public void IsMatch_GivenPatternAndDifferentPath_ReturnsFalse(string pattern, string path)
+        {
+            PathHelper.IsMatch(pattern, path).Should().BeFalse();
+        }
     }
 }

@@ -94,10 +94,10 @@ namespace HttpMoq
 
         internal Request Find(string path, string queryString, string method)
         {
-            return _requests.FirstOrDefault(x => PathHelper.IsMatch(x.Path, path) &&
+            return _requests.FirstOrDefault(x => PathHelper.IsMatch(path, x.Path) &&
                                                  x.Method == method &&
                                                  (x.Limit == null || x.Count < x.Limit) &&
-                                                 (x.Query == null || QueryStringHelper.IsMatch(x.Query, queryString)));
+                                                 QueryStringHelper.IsMatch(x.Query, queryString));
         }
 
         public void Remove(Request request)
