@@ -9,12 +9,7 @@ namespace HttpMoq
         {
             var args = new Dictionary<string, string[]>();
 
-            if (queryString == null)
-            {
-                return args;
-            }
-
-            if (queryString.Length < 1)
+            if (queryString == null || queryString.Length < 1)
             {
                 return args;
             }
