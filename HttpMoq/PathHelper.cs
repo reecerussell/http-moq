@@ -49,7 +49,7 @@ namespace HttpMoq
 
             pattern = pattern.Replace("*", "(.*[^/])");
 
-            return Regex.IsMatch(path, pattern);
+            return Regex.IsMatch(path, $"^{pattern}$");
         }
     }
 }

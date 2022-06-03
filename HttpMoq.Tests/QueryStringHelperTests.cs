@@ -23,6 +23,13 @@ namespace HttpMoq.Tests
             var result = QueryStringHelper.Parse(string.Empty);
             result.Count.Should().Be(0);
         }
+        
+        [Fact]
+        public void Parse_GivenNullQueryString_ReturnsEmptyResults()
+        {
+            var result = QueryStringHelper.Parse(null);
+            result.Count.Should().Be(0);
+        }
 
         [Fact]
         public void IsMatch_GivenValidPatternAndQueryString_ReturnsTrue()

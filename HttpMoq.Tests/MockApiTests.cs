@@ -46,6 +46,33 @@ namespace HttpMoq.Tests
 
             api.Find("/test", null, "GET").Should().Be(request);
         }
+        
+        [Fact]
+        public void Find_GivenMultipleRequestsWithSamePathButDifferentQueryParams_ReturnsTheExpectedRequest()
+        {
+            var api = new MockApi(9000);
+            api.Get("/test");
+            api.Get("/test?hello=hello");
+            api.Get("/test?world=hello");
+            api.Get("/test/world?hello=world");
+            var request = api.Get("/test?hello=world");
+
+            api.Find("/test", "?hello=world", "GET").Should().Be(request);
+        }
+        
+        [Fact]
+        public void Find_GivenMultipleRequestsWithTheSameFirstUriSegment_ReturnsTheExpectedRequest()
+        {
+            var api = new MockApi(9010);
+            api.Get("/test");
+            api.Get("/test/hello");
+            api.Get("/test/world/hello");
+            api.Get("/test/world?test=world");
+            api.Get("/hello/test/world");
+            var request = api.Get("/test/world");
+
+            api.Find("/test/world", null, "GET").Should().Be(request);
+        }
 
         [Fact]
         public void Expect_GivenValidMethodAndString_AddsRequestToApi()
