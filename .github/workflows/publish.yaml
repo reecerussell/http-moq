@@ -29,11 +29,6 @@ jobs:
         with:
           dotnet-version: '3.1.x'
 
-      - name: Setup .NET (5.x)
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '5.x'
-
       - name: Restore
         run: |
           dotnet restore HttpMoq/HttpMoq.csproj
@@ -44,11 +39,6 @@ jobs:
 
       - name: Unit Test
         run: dotnet test --no-restore -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura HttpMoq.Tests/HttpMoq.Tests.csproj
-
-      - name: Upload Coverage to Codecov (net5.0)
-        uses: codecov/codecov-action@v1
-        with:
-          file: HttpMoq.Tests/coverage.net5.0.cobertura.xml
 
       - name: Upload Coverage to Codecov (netcoreapp3.1)
         uses: codecov/codecov-action@v1
@@ -80,7 +70,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.x'
+          dotnet-version: '3.1.x'
 
       - name: Publish
         run: dotnet nuget push packages/**.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://www.nuget.org/api/v2/package --skip-duplicate

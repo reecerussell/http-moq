@@ -17,8 +17,8 @@ namespace HttpMoq
     public sealed class MockApi : IDisposable
     {
         private readonly IWebHost _host;
-        private readonly List<Request> _requests = new();
-        private Queue<string> _output = new();
+        private readonly List<Request> _requests = new List<Request>();
+        private Queue<string> _output = new Queue<string>();
 
         public string Url { get; }
         public HttpClient HttpClient { get; }
