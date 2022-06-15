@@ -86,5 +86,13 @@ namespace HttpMoq.Tests
 
             api.Find(path, null, method).Should().Be(request);
         }
+
+        [Fact]
+        public void Ctor_GivenPort_SetsPortAndUrl()
+        {
+            var api = new MockApi(8080);
+            api.Port.Should().Be(8080);
+            api.Url.Should().Be("http://localhost:8080");
+        }
     }
 }

@@ -21,6 +21,7 @@ namespace HttpMoq
         private Queue<string> _output = new Queue<string>();
 
         public string Url { get; }
+        public int Port { get; }
         public HttpClient HttpClient { get; }
 
         public MockApi() : this(FindFreePort())
@@ -29,6 +30,7 @@ namespace HttpMoq
 
         public MockApi(int port)
         {
+            Port = port;
             Url = $"http://localhost:{port}";
             HttpClient = new HttpClient
             {
