@@ -27,7 +27,7 @@ jobs:
       - name: Setup .NET (3.1.x)
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.x'
+          dotnet-version: '6.x'
 
       - name: Restore
         run: |
@@ -70,7 +70,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.x'
+          dotnet-version: '6.x'
 
       - name: Publish
         run: dotnet nuget push packages/**.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://www.nuget.org/api/v2/package --skip-duplicate
