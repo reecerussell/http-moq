@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 
 namespace HttpMoq;
@@ -23,6 +25,7 @@ public sealed class Request
     internal HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
     internal uint? Limit { get; set; }
     internal Func<string, bool> BodyValidator { get; private set; }
+    internal IDictionary<string, Func<StringValues, bool>> HeaderValidators { get; }
 
     private int _count;
     public int Count => _count;
@@ -41,6 +44,7 @@ public sealed class Request
         }
 
         Method = method;
+        HeaderValidators = new Dictionary<string, Func<StringValues, bool>>();
     }
 
     internal async Task Handle(HttpContext context)
@@ -232,6 +236,49 @@ public sealed class Request
     public Request EnsureBody(Func<string, bool> body)
     {
         BodyValidator = body;
+
+        return this;
+    }
+
+    /// <summary>
+    /// Used to set a header validator which is used when matching requests.
+    /// By setting a header validator, the request is only valid if all of the
+    /// specified headers pass validation.
+    /// </summary>
+    /// <param name="header">
+    /// The name of the header to validate. If a validator has already been set
+    /// for this header, it will be overwritten.
+    /// </param>
+    /// <param name="expected">
+    /// The expected values of the header.
+    /// </param>
+    /// <example>
+    /// var request = new Request("/", "POST)
+    ///     .EnsureHeader("MyHeader", "foobar");
+    /// </example>
+    public Request EnsureHeader(string header, StringValues expected)
+        => EnsureHeader(header, x => x == expected);
+
+    /// <summary>
+    /// Used to set a header validator which is used when matching requests.
+    /// By setting a header validator, the request is only valid if all of the
+    /// specified headers pass validation.
+    /// </summary>
+    /// <param name="header">
+    /// The name of the header to validate. If a validator has already been set
+    /// for this header, it will be overwritten.
+    /// </param>
+    /// <param name="validator">
+    /// The validator function to use. The function will be passed the header's
+    /// values.
+    /// </param>
+    /// <example>
+    /// var request = new Request("/", "POST)
+    ///     .EnsureHeader("MyHeader", header => header == "foobar");
+    /// </example>
+    public Request EnsureHeader(string header, Func<StringValues, bool> validator)
+    {
+        HeaderValidators[header] = validator;
 
         return this;
     }

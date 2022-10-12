@@ -19,7 +19,7 @@ public class ReceivedPostRequestTests
         {
             const string testBody = "{\"message\":\"hi\"}";
 
-            _api = new MockApi(34946);
+            _api = new MockApi();
             _request = _api.Post("/test")
                 .EnsureBody(b => b.Value<string>("message").Should().Be("hi"))
                 .ReturnJson(new { foo = "bar" })
@@ -69,7 +69,7 @@ public class ReceivedPostRequestTests
 
         public async Task InitializeAsync()
         {
-            _api = new MockApi(34944);
+            _api = new MockApi();
             _request = _api.Post("/test")
                 .EnsureBody(b => b.Should().Be("bar"))
                 .ReturnJson(new { foo = "bar" })
@@ -89,6 +89,145 @@ public class ReceivedPostRequestTests
 
         [Fact]
         public void TheRequestCountIs1()
+        {
+            _request.Count.Should().Be(0);
+        }
+
+        [Fact]
+        public void TheResponseStatusCodeIsCorrect()
+        {
+            _response.StatusCode.Should().Be(404);
+        }
+    }
+    
+    public class WhereHeaderMatches : IAsyncLifetime
+    {
+        private MockApi _api;
+        private Request _request;
+        private HttpResponseMessage _response;
+
+        public async Task InitializeAsync()
+        {
+            _api = new MockApi();
+            _request = _api.Post("/test")
+                .EnsureHeader("MyHeader", "foobar")
+                .ReturnJson(new { foo = "bar" })
+                .SetStatusCode(HttpStatusCode.BadRequest);
+
+            await _api.StartAsync();
+
+            using var client = new HttpClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_api.Url}/test");
+            request.Headers.Add("MyHeader", "foobar");
+            
+            _response = await client.SendAsync(request);
+        }
+
+        public async Task DisposeAsync()
+        {
+            await _api.StopAsync();
+            _api.Dispose();
+        }
+
+        [Fact]
+        public void TheRequestCountIs1()
+        {
+            _request.Count.Should().Be(1);
+        }
+
+        [Fact]
+        public void TheResponseStatusCodeIsCorrect()
+        {
+            _response.StatusCode.Should().Be(400);
+        }
+
+        [Fact]
+        public async Task TheResponseContentIsCorrect()
+        {
+            _response.Content.Headers.ContentType?.MediaType.Should().Be("application/json");
+
+            var json = await _response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(json);
+
+            data.Value<string>("foo").Should().Be("bar");
+        }
+    }
+    
+    public class WhereHeaderDoesNotMatch : IAsyncLifetime
+    {
+        private MockApi _api;
+        private Request _request;
+        private HttpResponseMessage _response;
+
+        public async Task InitializeAsync()
+        {
+            _api = new MockApi();
+            _request = _api.Post("/test")
+                .EnsureHeader("MyHeader", "foobar")
+                .ReturnJson(new { foo = "bar" })
+                .SetStatusCode(HttpStatusCode.BadRequest);
+
+            await _api.StartAsync();
+
+            using var client = new HttpClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_api.Url}/test");
+            request.Headers.Add("MyHeader", "foo"); // foo != foobar
+            
+            _response = await client.SendAsync(request);
+        }
+
+        public async Task DisposeAsync()
+        {
+            await _api.StopAsync();
+            _api.Dispose();
+        }
+
+        [Fact]
+        public void TheRequestCountIs0()
+        {
+            _request.Count.Should().Be(0);
+        }
+
+        [Fact]
+        public void TheResponseStatusCodeIsCorrect()
+        {
+            _response.StatusCode.Should().Be(404);
+        }
+    }
+    
+    public class WhereHeaderIsNotSet : IAsyncLifetime
+    {
+        private MockApi _api;
+        private Request _request;
+        private HttpResponseMessage _response;
+
+        public async Task InitializeAsync()
+        {
+            _api = new MockApi();
+            _request = _api.Post("/test")
+                .EnsureHeader("MyHeader", "foobar")
+                .ReturnJson(new { foo = "bar" })
+                .SetStatusCode(HttpStatusCode.BadRequest);
+
+            await _api.StartAsync();
+
+            using var client = new HttpClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_api.Url}/test");
+            
+            _response = await client.SendAsync(request);
+        }
+
+        public async Task DisposeAsync()
+        {
+            await _api.StopAsync();
+            _api.Dispose();
+        }
+
+        [Fact]
+        public void TheRequestCountIs0()
         {
             _request.Count.Should().Be(0);
         }

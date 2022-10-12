@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
 
 namespace HttpMoq;
 
@@ -184,6 +185,26 @@ public sealed class MockApi : IDisposable
             const string error = "The request body does not match the mocked request.";
             await WriteError(error);
             return;
+        }
+
+        foreach (var headerValidator in request.HeaderValidators)
+        {
+            var header = headerValidator.Key;
+            var validator = headerValidator.Value;
+
+            if (!context.Request.Headers.TryGetValue(header, out var value))
+            {
+                var error = $"The request is missing the '{header}' header.";
+                await WriteError(error);
+                return;
+            }
+
+            if (!validator(value))
+            {
+                var error = $"The header '{header}' does not match the mocked request.";
+                await WriteError(error);
+                return;
+            }
         }
 
         request.Increment();
