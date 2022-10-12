@@ -13,6 +13,7 @@
     <PackageTags>tdd, bdd, tests, xunit, nunit, msbuild</PackageTags>
     <PackageReleaseNotes>Added new functionality to limit the number of times a Request can be used.</PackageReleaseNotes>
     <OutputType>Library</OutputType>
+    <PackageVersion>0.13.0</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
